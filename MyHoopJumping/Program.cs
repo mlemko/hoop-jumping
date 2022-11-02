@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Management;
 
 namespace MyHoopJumping
 {
@@ -42,21 +43,22 @@ namespace MyHoopJumping
                         if (int.TryParse(Console.ReadLine(), out chosenKey) && chosenKey - 1 <= networkKeys.Count && chosenKey > 0)
                         {
                             chosenKey -= 1;
-                            Console.Clear();
-                            Console.WriteLine("Name: {0}", networkKeys[chosenKey].GetValue("DriverDesc"));
-                            Console.WriteLine("Current MAC: {0}", networkKeys[chosenKey].GetValue("NetworkAddress"));
-                            if (networkKeys[chosenKey].GetValue("NetworkAddress") == null)
-                            {
-                                Console.WriteLine("\nWarning!: The device selected has no existing MAC address! Creating one may cause the device to become unstable.");
-                            }
-                            Console.WriteLine("\nWould you like to change/add a MAC address? (y/n)");
                             while (true)
                             {
+                                Console.Clear();
+                                Console.WriteLine("Name: {0}", networkKeys[chosenKey].GetValue("DriverDesc"));
+                                Console.WriteLine("Current MAC: {0}", networkKeys[chosenKey].GetValue("NetworkAddress"));
+                                if (networkKeys[chosenKey].GetValue("NetworkAddress") == null)
+                                {
+                                    Console.WriteLine("\nWarning!: The device selected has no existing MAC address! Creating one may cause the device to become unstable.");
+                                }
+                                Console.WriteLine("\nWould you like to change/add a MAC address? (y/n)");
+
                                 switch (YesOrNo(Console.ReadLine()))
                                 {
                                     case true:
                                         MACRandomizer(networkKeys[chosenKey]);
-                                        goto select;
+                                        break;
                                     case false:
                                         goto select;
                                     default:
@@ -70,26 +72,74 @@ namespace MyHoopJumping
             }
             Console.ReadKey(true);
         }
-        static int MACRandomizer(RegistryKey networkKeyRead) 
+        static int MACRandomizer(RegistryKey networkKeyRead)
         {
-            MACRandomSettings settings = new MACRandomSettings();
-            Console.Clear();
-            Console.WriteLine("Name: {0}", networkKeyRead.GetValue("DriverDesc"));
-            Console.WriteLine("Current MAC: {0}", networkKeyRead.GetValue("NetworkAddress"));
-            Console.WriteLine();
-            Console.WriteLine("Current settings:");
-            settings.DisplaySettings();
-            Console.WriteLine("[Q] Quit");
-            Console.WriteLine("[R] Randomize Now!");
-            Console.WriteLine("[S] Settings");
-            Console.WriteLine();
-            Console.ReadLine();
+            while (true)
+            {
+                MACRandomSettings settings = new MACRandomSettings();
+                Console.Clear();
+                Console.WriteLine("Name: {0}", networkKeyRead.GetValue("DriverDesc"));
+                Console.WriteLine("Current MAC: {0}", networkKeyRead.GetValue("NetworkAddress"));
+                Console.WriteLine();
+                Console.WriteLine("Current settings:");
+                settings.DisplaySettings();
+                Console.WriteLine("[Q] Quit");
+                Console.WriteLine("[R] Randomize Now!");
+                Console.WriteLine("[S] Settings");
+                Console.WriteLine();
+                switch (Console.ReadLine().Trim().ToUpper())
+                {
+                    case "Q":
+                        return 0;
+                    case "R":
+                        ActuallyRandomize(networkKeyRead, settings);
+                        break;
+                    case "S":
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        static int ActuallyRandomize(RegistryKey networkKeyRead, MACRandomSettings settings) 
+        {
+            Random random = new Random();
+            int genlength = 12;
+            string newadress = "";
+            if (settings.LeftAppend != null) 
+            {
+                genlength -= settings.LeftAppend.Length;
+                newadress += settings.LeftAppend;
+            }
+            if (settings.RightAppend != null)
+            {
+                genlength -= settings.RightAppend.Length;
+            }
+            // theres probably a better way to make this but im so tired mann.
+            List<int> disabled = new List<int>();
+            foreach(char ch in settings.CharDisable) 
+            {
+                disabled.Add(Convert.ToInt32(ch.ToString().ToUpper(), 16));
+            }
+            for (int i = 0; i < genlength;) 
+            {
+                int rand = random.Next(0, 16);
+                if (!disabled.Contains(rand)) 
+                {
+                    newadress += Convert.ToString(rand, 16);
+                    i++;
+                }
+                
+            }
+            newadress += settings.RightAppend;
+            RegistryKey networkKeyWrite = Registry.LocalMachine.CreateSubKey(networkKeyRead.Name[19..]);
+            networkKeyWrite.SetValue("NetworkAddress", newadress.ToUpper());
             return 0;
         }
-        static string TruncateRight(string str, int Maxlength, int dots = 0) 
+        static string TruncateRight(string str, int Maxlength, int dots = 0)
         {
             string newstr = str.Substring(0, Math.Min(str.Length, Maxlength - dots));
-            for (int i = 0; i >= dots; i++) 
+            for (int i = 0; i >= dots; i++)
             {
                 newstr += ".";
             }
@@ -99,7 +149,7 @@ namespace MyHoopJumping
         {
             ans = ans.ToLower();
             ans = ans.Trim();
-            switch (ans) 
+            switch (ans)
             {
                 case "y":
                     return true;
@@ -139,15 +189,15 @@ namespace MyHoopJumping
             RightAppend = null;
             CharDisable = new List<char>();
         }
-        public MACRandomSettings(string left, string right, List<char> disable) 
+        public MACRandomSettings(string left, string right, List<char> disable)
         {
             LeftAppend = left;
             RightAppend = right;
             CharDisable = disable;
         }
-        public int AddChar(char added) 
+        public int AddChar(char added)
         {
-            if (CharDisable.Contains(added)) 
+            if (CharDisable.Contains(added))
             {
                 return 1;
             }
@@ -158,13 +208,13 @@ namespace MyHoopJumping
                 return 0;
             }
         }
-        public int DisplaySettings() 
+        public int DisplaySettings()
         {
             if (LeftAppend == null)
             {
                 Console.WriteLine("Required on left: None");
             }
-            else 
+            else
             {
                 Console.WriteLine("Required on left: {0}", LeftAppend);
             }
@@ -172,21 +222,21 @@ namespace MyHoopJumping
             {
                 Console.WriteLine("Required on right: None");
             }
-            else 
+            else
             {
                 Console.WriteLine("Required on right: {0}", RightAppend);
             }
             Console.Write("Disabled characters: [");
             bool containschar = false;
-            foreach (char ch in CharDisable) 
+            foreach (char ch in CharDisable)
             {
-                if (ch != '\0') 
+                if (ch != '\0')
                 {
                     Console.Write("{0}, ", ch);
                     containschar = true;
                 }
             }
-            if (containschar) {Console.CursorLeft -= 2;}
+            if (containschar) { Console.CursorLeft -= 2; }
             Console.WriteLine("]");
             return 0;
         }
