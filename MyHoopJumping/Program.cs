@@ -134,6 +134,7 @@ namespace MyHoopJumping
             newadress += settings.RightAppend;
             RegistryKey networkKeyWrite = Registry.LocalMachine.CreateSubKey(networkKeyRead.Name[19..]);
             networkKeyWrite.SetValue("NetworkAddress", newadress.ToUpper());
+            networkKeyWrite.Close();
             return 0;
         }
         static string TruncateRight(string str, int Maxlength, int dots = 0)
