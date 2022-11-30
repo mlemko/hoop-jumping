@@ -74,9 +74,9 @@ namespace MyHoopJumping
         }
         static int MACRandomizer(RegistryKey networkKeyRead)
         {
+            MACRandomSettings settings = new MACRandomSettings();
             while (true)
             {
-                MACRandomSettings settings = new MACRandomSettings();
                 Console.Clear();
                 Console.WriteLine("Name: {0}", networkKeyRead.GetValue("DriverDesc"));
                 Console.WriteLine("Current MAC: {0}", networkKeyRead.GetValue("NetworkAddress"));
@@ -95,6 +95,7 @@ namespace MyHoopJumping
                         ActuallyRandomize(networkKeyRead, settings);
                         break;
                     case "S":
+                    settings.ChangeSettings();
                         break;
                     default:
                         break;
@@ -240,6 +241,17 @@ namespace MyHoopJumping
             if (containschar) { Console.CursorLeft -= 2; }
             Console.WriteLine("]");
             return 0;
+        }
+        public int ChangeSettings()
+        {
+            Console.Clear();
+            System.Console.WriteLine("Current settings:");
+            this.DisplaySettings();                
+            Console.WriteLine("[Q] Go Back");
+            Console.WriteLine("[L] Change left");
+            Console.WriteLine("[R] Change right");
+            System.Console.WriteLine("[D] Disabled characters");
+            System.Console.WriteLine();
         }
     }
 }
