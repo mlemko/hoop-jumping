@@ -296,7 +296,7 @@ namespace MyHoopJumping
                             Console.Clear();
                             this.DisplaySettings();
                             System.Console.WriteLine("Type characters to add (Q to exit):");
-
+                            
                         }
                         break;
                     case "R":
