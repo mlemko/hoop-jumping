@@ -95,19 +95,19 @@ namespace MyHoopJumping
                         ActuallyRandomize(networkKeyRead, settings);
                         break;
                     case "S":
-                    settings.ChangeSettings();
+                        settings.ChangeSettings();
                         break;
                     default:
                         break;
                 }
             }
         }
-        static int ActuallyRandomize(RegistryKey networkKeyRead, MACRandomSettings settings) 
+        static int ActuallyRandomize(RegistryKey networkKeyRead, MACRandomSettings settings)
         {
             Random random = new Random();
             int genlength = 12;
             string newadress = "";
-            if (settings.LeftAppend != null) 
+            if (settings.LeftAppend != null)
             {
                 genlength -= settings.LeftAppend.Length;
                 newadress += settings.LeftAppend;
@@ -118,19 +118,19 @@ namespace MyHoopJumping
             }
             // theres probably a better way to make this but im so tired mann.
             List<int> disabled = new List<int>();
-            foreach(char ch in settings.CharDisable) 
+            foreach (char ch in settings.CharDisable)
             {
                 disabled.Add(Convert.ToInt32(ch.ToString().ToUpper(), 16));
             }
-            for (int i = 0; i < genlength;) 
+            for (int i = 0; i < genlength;)
             {
                 int rand = random.Next(0, 16);
-                if (!disabled.Contains(rand)) 
+                if (!disabled.Contains(rand))
                 {
                     newadress += Convert.ToString(rand, 16);
                     i++;
                 }
-                
+
             }
             newadress += settings.RightAppend;
             RegistryKey networkKeyWrite = Registry.LocalMachine.CreateSubKey(networkKeyRead.Name[19..]);
@@ -244,14 +244,70 @@ namespace MyHoopJumping
         }
         public int ChangeSettings()
         {
-            Console.Clear();
-            System.Console.WriteLine("Current settings:");
-            this.DisplaySettings();                
-            Console.WriteLine("[Q] Go Back");
-            Console.WriteLine("[L] Change left");
-            Console.WriteLine("[R] Change right");
-            System.Console.WriteLine("[D] Disabled characters");
-            System.Console.WriteLine();
+            while (true)
+            {
+                Console.Clear();
+                System.Console.WriteLine("Current settings:");
+                this.DisplaySettings();
+                Console.WriteLine("[Q] Go Back");
+                Console.WriteLine("[L] Change left");
+                Console.WriteLine("[R] Change right");
+                System.Console.WriteLine("[D] Disabled characters");
+                System.Console.WriteLine();
+                switch (Console.ReadLine().Trim().ToUpper())
+                {
+                    case "Q":
+                        return 0;
+                    case "R":
+                        System.Console.WriteLine("Please type new string (q to cancel):");
+                        string inpot = Console.ReadLine().Trim().ToUpper();
+                        if (inpot != "Q")
+                        {
+                            this.RightAppend = inpot;
+                        }
+                        break;
+                    case "L":
+                        System.Console.WriteLine("Please type new string (q to cancel):");
+                        string inpat = Console.ReadLine().Trim().ToUpper();
+                        if (inpat != "Q")
+                        {
+                            this.LeftAppend = inpat;
+                        }
+                        break;
+                    case "D":
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        int RestrictCharacters()
+        {
+            while (true)
+            {
+                Console.Clear();
+                this.DisplaySettings();
+                System.Console.WriteLine("Would you like to [A]dd, [R]emove or r[E]set characters?");
+                switch (Console.ReadLine().Trim().ToUpper())
+                {
+                    case "A":
+                        while (true)
+                        {
+                            Console.Clear();
+                            this.DisplaySettings();
+                            System.Console.WriteLine("Type characters to add (Q to exit):");
+
+                        }
+                        break;
+                    case "R":
+                        break;
+                    case "E":
+                        break;
+                    default:
+                        return 0;
+                        break;
+                }
+            }
         }
     }
 }
