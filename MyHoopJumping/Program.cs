@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Management;
+using System.Security.Principal;
+using System.Security.Permissions;
+using System.Data;
 
 namespace MyHoopJumping
 {
@@ -133,6 +136,7 @@ namespace MyHoopJumping
 
             }
             newadress += settings.RightAppend;
+            // this part needs admin powers. not sure how to ask only at this point.
             RegistryKey networkKeyWrite = Registry.LocalMachine.CreateSubKey(networkKeyRead.Name[19..]);
             networkKeyWrite.SetValue("NetworkAddress", newadress.ToUpper());
             networkKeyWrite.Close();
@@ -296,7 +300,7 @@ namespace MyHoopJumping
                             Console.Clear();
                             this.DisplaySettings();
                             System.Console.WriteLine("Type characters to add (Q to exit):");
-                            
+
                         }
                         break;
                     case "R":
