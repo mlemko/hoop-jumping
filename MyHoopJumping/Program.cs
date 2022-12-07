@@ -12,6 +12,13 @@ namespace MyHoopJumping
     {
         static void Main(string[] args)
         {
+            if (!System.OperatingSystem.IsWindows())
+            {
+                Console.WriteLine("Frankly if you see this congratulations I specifically said this was Windows only but I guess that won't stop everyone.");
+                Console.WriteLine("Press any key to exit.");
+                Console.ReadKey(true);
+                return;
+            }
             // Gathering registry keys...
             Console.WriteLine("Hello Wssorld!");
             RegistryKey basekey = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}"); // where network drivers are stored (fsr)
@@ -151,7 +158,7 @@ namespace MyHoopJumping
             }
             return newstr;
         }
-        static bool? YesOrNo(string ans) // literally is just a method for converting y/n to true/false cause i'm lazy.
+        public static bool? YesOrNo(string ans) // literally is just a method for converting y/n to true/false cause i'm lazy.
         {
             ans = ans.ToLower();
             ans = ans.Trim();
@@ -300,16 +307,46 @@ namespace MyHoopJumping
                             Console.Clear();
                             this.DisplaySettings();
                             System.Console.WriteLine("Type characters to add (Q to exit):");
-
+                            char addition = Console.ReadKey().KeyChar.ToString().ToUpper().Trim().ToCharArray()[0];
+                            if ((65 <= addition && addition <= 90) || (48 <= addition && addition <= 57))
+                            {
+                                if (!this.CharDisable.Contains(addition))
+                                {
+                                    this.CharDisable.Add(addition);
+                                }
+                            }
+                            else if (addition == 'Q') { break; }
                         }
                         break;
                     case "R":
+
+                        while (true)
+                        {
+                            Console.Clear();
+                            this.DisplaySettings();
+                            System.Console.WriteLine("Type characters to remove (Q to exit):");
+                            char subtraction = Console.ReadKey().KeyChar.ToString().ToUpper().Trim().ToCharArray()[0];
+                            if ((65 <= subtraction && subtraction <= 90) || (48 <= subtraction && subtraction <= 57))
+                            {
+                                this.CharDisable.Remove(subtraction);
+                            }
+                            else if (subtraction == 'Q') { break; }
+                        }
                         break;
                     case "E":
+                        Console.WriteLine("Are you sure (y/n)?");
+                        while (true)
+                        {
+                            if (Console.ReadLine().ToLower().Trim() == "y")
+                            {
+                                Console.WriteLine("Resetting...");
+                                this.CharDisable.Clear();
+                            }
+                            break;
+                        }
                         break;
                     default:
                         return 0;
-                        break;
                 }
             }
         }
