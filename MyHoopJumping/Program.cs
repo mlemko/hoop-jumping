@@ -221,6 +221,9 @@ namespace MyHoopJumping
                 return 0;
             }
         }
+        static bool IsHexadecimal(char digit){
+            return (65 <= digit && digit <= 90) || (48 <= digit && digit <= 57);
+        }
         public int DisplaySettings()
         {
             if (LeftAppend == null)
@@ -308,7 +311,7 @@ namespace MyHoopJumping
                             this.DisplaySettings();
                             System.Console.WriteLine("Type characters to add (Q to exit):");
                             char addition = Console.ReadKey().KeyChar.ToString().ToUpper().Trim().ToCharArray()[0];
-                            if ((65 <= addition && addition <= 90) || (48 <= addition && addition <= 57))
+                            if (IsHexadecimal(addition))
                             {
                                 if (!this.CharDisable.Contains(addition))
                                 {
@@ -326,7 +329,7 @@ namespace MyHoopJumping
                             this.DisplaySettings();
                             System.Console.WriteLine("Type characters to remove (Q to exit):");
                             char subtraction = Console.ReadKey().KeyChar.ToString().ToUpper().Trim().ToCharArray()[0];
-                            if ((65 <= subtraction && subtraction <= 90) || (48 <= subtraction && subtraction <= 57))
+                            if (IsHexadecimal(subtraction)) // Check if character is (0-F)
                             {
                                 this.CharDisable.Remove(subtraction);
                             }
